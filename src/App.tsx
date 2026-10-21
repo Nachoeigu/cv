@@ -62,13 +62,23 @@ function Cell(p: any) {
     const pick = full.ok && full.ls.length <= maxLines ? full : short?.ok && short.ls.length <= maxLines ? short : null;
     if (pick) { fs = pick.size; lines = pick.ls; }
   }
+  // Tall, narrow cell and no horizontal fit? Rotate the label instead of leaving it blank.
+  let vertical = false;
+  if (!lines.length && width >= 20 && height >= 46 && height > width) {
+    const size = Math.min(11.5, (height - pad) / (label.length * 0.67));
+    if (size >= 7) { fs = size; lines = [label]; vertical = true; }
+  }
+  const cx = x + width / 2, cy = y + height / 2;
   const lh = fs * 1.25;
   const y0 = y + (height - lines.length * lh) / 2 + fs * 0.92;
   return (
     <g className="cell" onClick={() => onPick(root.name)} opacity={dim ? 0.28 : 1}>
       <rect x={x + 1} y={y + 1} width={Math.max(0, width - 2)} height={Math.max(0, height - 2)} rx={8} fill={groupColors[gi % 4]}><title>{label}</title></rect>
-      {lines.map((l: string, i: number) => (
-        <text key={i} x={x + pad / 2} y={y0 + i * lh} fill="#17181b" fontSize={fs} fontWeight={700} fontFamily="Montserrat, sans-serif">{l.replace("/ ", "/")}</text>))}
+      {vertical
+        ? <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" transform={`rotate(-90 ${cx} ${cy})`}
+            fill="#17181b" fontSize={fs} fontWeight={700} fontFamily="Montserrat, sans-serif">{label.replace("/ ", "/")}</text>
+        : lines.map((l: string, i: number) => (
+          <text key={i} x={x + pad / 2} y={y0 + i * lh} fill="#17181b" fontSize={fs} fontWeight={700} fontFamily="Montserrat, sans-serif">{l.replace("/ ", "/")}</text>))}
     </g>
   );
 }

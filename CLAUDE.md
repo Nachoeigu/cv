@@ -21,8 +21,8 @@ npm run preview # sirve dist/
 
 ## Convenciones
 
-- Las etiquetas de las celdas del treemap (`Cell`) nunca se cortan con "…": se achica la fuente y, si no entra, se usa la primera palabra; si tampoco entra, no se dibuja etiqueta (el `<title>` da el nombre completo al hover).
-- Los `[X%]` / `[N]` en `data.ts` son placeholders a completar con números reales.
+- Las etiquetas de las celdas del treemap (`Cell`) nunca se cortan con "…": se achica la fuente, después se usa la primera palabra y, en celdas altas y angostas, se rota el texto 90°. Si nada entra, no se dibuja etiqueta (el `<title>` da el nombre completo al hover).
+- Métricas: nada de porcentajes inventados. "Over 90%" es defendible en una entrevista; un 94,3% inventado no.
 
 ## Verificación
 
