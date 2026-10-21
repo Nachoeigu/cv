@@ -50,7 +50,7 @@ const en: Site = {
     languages: "Spanish, English",
     available: "Open to remote roles",
     photo: "photo.png", // /public/photo.png
-    links: { email: "mailto:you@email.com", github: "https://github.com/your-user", linkedin: "https://linkedin.com/in/your-user" },
+    links: { email: "mailto:ignacio.eiguren@gmail.com", github: "https://github.com/Nachoeigu", linkedin: "https://www.linkedin.com/in/ignacio-eiguren/" },
   },
   ui: {
     title: "Discover Nacho · AI Engineer",
@@ -199,7 +199,7 @@ const es: Site = {
     languages: "Español, Inglés",
     available: "Abierto a roles remotos",
     photo: "photo.png",
-    links: { email: "mailto:you@email.com", github: "https://github.com/your-user", linkedin: "https://linkedin.com/in/your-user" },
+    links: { email: "mailto:ignacio.eiguren@gmail.com", github: "https://github.com/Nachoeigu", linkedin: "https://www.linkedin.com/in/ignacio-eiguren/" },
   },
   ui: {
     title: "Discover Nacho · AI Engineer",
