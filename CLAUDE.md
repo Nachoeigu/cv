@@ -16,7 +16,8 @@ npm run preview # sirve dist/
 - Idioma: `App.tsx` guarda `lang` (`"en" | "es"`), lo persiste en `localStorage["cv-lang"]`, actualiza `document.documentElement.lang` y `document.title`, y lo cambia con el switch EN/ES del header. El default es `en`.
 - `src/App.tsx` — layout bento + modales (Experience / Projects / Education / Certifications). El modal de experiencia colapsa los bullets (3 en el trabajo destacado, 2 en el resto) con un botón "+N more" por trabajo, y muestra chips de `job.tech`.
 - `src/styles.css` — tema oscuro con acento dorado (`--gold`). Grid de 12 columnas; `.c5/.c6/.c7` son los anchos de panel. La foto tiene `aspect-ratio:4/5` fijo: sin eso la columna se estira a la altura del panel y `object-fit:cover` hace zoom sobre la cara.
-- `public/photo.png` — foto de perfil; `public/favicon.svg` — ícono del sitio.
+- `public/photo.png` — foto de perfil; `public/favicon.svg` — ícono del sitio; `public/og.png` — imagen 1200x630 del preview al compartir (las etiquetas Open Graph están en `index.html` y usan URL absoluta a nachoeigu.github.io/cv).
+- Botón "Download PDF": `downloadPdf()` en `App.tsx` usa `html2canvas` + `jspdf` (import dinámico, ~600 KB que sólo se bajan al hacer clic) y arma un PDF de **una sola página del tamaño del contenido**, con el layout de escritorio (1240px) aunque se dispare desde el celular. `body.capturing` oculta los botones del header para que no salgan en el PDF.
 - Fuentes: `@fontsource/*` importadas en `src/main.tsx` (nada por CDN, así funciona offline y en la preview).
 
 ## Convenciones

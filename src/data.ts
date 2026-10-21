@@ -21,6 +21,7 @@ export type Site = {
     viewAll: string; showLess: string; footer: string; legendData: string; legendMl: string; legendAi: string;
     chartDepth: string; ariaRadar: string; ariaEvolution: string; ariaSocial: string; ariaDialog: string;
     ariaSections: string; ariaClose: string; ariaRepo: string; ariaLang: string;
+    pdf: string; pdfBusy: string; ariaDownload: string;
     more: (n: number) => string;
   };
   toolGroups: { title: string; weight: number; items: string[] }[];
@@ -67,6 +68,7 @@ const en: Site = {
     ariaEvolution: "Share of work by area per year: BI shrinking, GenAI agents growing",
     ariaSocial: "Social links", ariaDialog: "CV details", ariaSections: "Sections", ariaClose: "Close", ariaRepo: "Repository",
     ariaLang: "Change language",
+    pdf: "Download PDF", pdfBusy: "Generating…", ariaDownload: "Download this CV as PDF",
     more: (n) => `+${n} more`,
   },
   toolGroups: [
@@ -216,6 +218,7 @@ const es: Site = {
     ariaEvolution: "Porcentaje de mi trabajo por área y por año: BI bajando, agentes de IA creciendo",
     ariaSocial: "Redes y contacto", ariaDialog: "Detalle del CV", ariaSections: "Secciones", ariaClose: "Cerrar", ariaRepo: "Repositorio",
     ariaLang: "Cambiar idioma",
+    pdf: "Descargar PDF", pdfBusy: "Generando…", ariaDownload: "Descargar este CV en PDF",
     more: (n) => `+${n} más`,
   },
   toolGroups: [

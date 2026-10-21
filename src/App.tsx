@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { Area, AreaChart, CartesianGrid, PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart,
   ResponsiveContainer, Tooltip, Treemap, XAxis, YAxis } from "recharts";
-import { Award, Briefcase, ChevronRight, ExternalLink, FolderGit2, GraduationCap, Github, Linkedin, Mail,
+import { Award, Briefcase, ChevronRight, Download, ExternalLink, FolderGit2, GraduationCap, Github, Linkedin, Mail,
   Radar as RadarIcon, TrendingUp, User, Wrench, X, type LucideIcon } from "lucide-react";
 import { content, type Lang } from "./data";
 
@@ -102,6 +102,7 @@ export default function App() {
   const [modal, setModal] = useState<Key | null>(null);
   const [group, setGroup] = useState<string | null>(null);
   const [photoOk, setPhotoOk] = useState(true);
+  const [busy, setBusy] = useState(false);
   const [expanded, setExpanded] = useState<string[]>([]);
   const toggleJob = (c: string) => setExpanded((s) => (s.includes(c) ? s.filter((x) => x !== c) : [...s, c]));
 
@@ -135,6 +136,33 @@ export default function App() {
   const seeAll = (k: Key, n: number) => <button className="more" onClick={() => setModal(k)}>{n > 0 ? t.more(n) : t.viewAll}<ChevronRight size={14} /></button>;
   const activeItems = toolGroups.find((g) => g.title === group)?.items;
 
+  // The PDF is a snapshot of this exact layout: one page sized to the content, so nothing re-flows or breaks.
+  const downloadPdf = async () => {
+    if (busy) return;
+    setBusy(true);
+    document.body.classList.add("capturing"); // hides the header buttons so they don't end up in the PDF
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
+      const el = document.querySelector<HTMLElement>(".page");
+      if (!el) return;
+      // Always render at desktop width, so a phone gets the same document as the desktop.
+      const w = Math.max(el.offsetWidth, 1240);
+      const scale = Math.min(3, Math.max(2, window.devicePixelRatio || 1));
+      const canvas = await html2canvas(el, {
+        scale, backgroundColor: "#131417", logging: false, useCORS: true,
+        width: w, windowWidth: w, windowHeight: Math.max(2400, el.offsetHeight),
+      });
+      const pt = 0.75; // CSS px → PDF pt
+      const pw = canvas.width / scale, ph = canvas.height / scale;
+      const pdf = new jsPDF({ unit: "pt", format: [pw * pt, ph * pt], orientation: pw > ph ? "landscape" : "portrait", compress: true });
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pw * pt, ph * pt);
+      pdf.save(`Ignacio-Eiguren-CV-${lang.toUpperCase()}.pdf`);
+    } finally {
+      document.body.classList.remove("capturing");
+      setBusy(false);
+    }
+  };
+
   return (
     <main className="page">
       <header className="top">
@@ -143,6 +171,9 @@ export default function App() {
           <p className="sub"><span className="dot" />{profile.available}</p>
         </div>
         <div className="tools">
+          <button className="pdf no-capture" onClick={downloadPdf} disabled={busy} aria-label={t.ariaDownload} title={t.ariaDownload}>
+            <Download size={16} aria-hidden /><span>{busy ? t.pdfBusy : t.pdf}</span>
+          </button>
           <div className="lang" role="group" aria-label={t.ariaLang}>
             {(["en", "es"] as Lang[]).map((l) => (
               <button key={l} className={lang === l ? "on" : ""} onClick={() => setLang(l)} aria-pressed={lang === l}>{l.toUpperCase()}</button>))}

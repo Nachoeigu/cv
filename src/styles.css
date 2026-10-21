@@ -12,6 +12,10 @@ button { font:inherit; color:inherit; cursor:pointer; }
 .sub { margin:8px 0 0; display:flex; align-items:center; gap:8px; color:var(--muted); font-size:.9rem; }
 .dot { width:8px; height:8px; border-radius:50%; background:#4ade80; box-shadow:0 0 0 4px rgba(74,222,128,.15); }
 .top .tools { display:flex; align-items:center; gap:10px; }
+.pdf { display:inline-flex; align-items:center; gap:8px; height:42px; padding:0 14px; background:var(--panel2); border:1px solid var(--line); border-radius:12px; font-size:.8rem; font-weight:600; color:var(--text); transition:background .2s,color .2s,border-color .2s; }
+.pdf:hover:not(:disabled) { background:var(--gold); color:#17181b; border-color:var(--gold); }
+.pdf:disabled { opacity:.65; cursor:progress; }
+body.capturing .no-capture { display:none !important; }
 .lang { display:flex; gap:2px; padding:3px; background:var(--panel2); border:1px solid var(--line); border-radius:12px; }
 .lang button { border:0; background:none; color:var(--muted); font-size:.75rem; font-weight:700; letter-spacing:.04em; padding:7px 9px; border-radius:9px; transition:background .2s,color .2s; }
 .lang button:hover { color:var(--text); } .lang button.on { background:var(--gold); color:#17181b; }
@@ -91,5 +95,5 @@ footer { text-align:center; color:var(--muted); font-size:.75rem; margin-top:24p
 .card p { margin:0; font-size:.86rem; color:#cfcfd6; } .card .muted { color:var(--muted); } .card .chips { padding:0; margin-top:auto; }
 .card .chips span { background:var(--bg); }
 @media (max-width:960px) { .c5,.c6,.c7 { grid-column:1/-1; } .modal-body { padding:18px; } }
-@media (max-width:560px) { .profile { grid-template-columns:112px minmax(0,1fr); gap:12px 14px; } .photo strong { font-size:.6rem; letter-spacing:.02em; padding:5px 2px; } .rows button { grid-template-columns:1fr 16px; } .rows button span { display:none; } .top { align-items:center; flex-wrap:wrap; row-gap:10px; } .top nav a { width:38px; height:38px; } .lang button { padding:6px 8px; } .tm { min-height:300px; } }
+@media (max-width:560px) { .profile { grid-template-columns:112px minmax(0,1fr); gap:12px 14px; } .photo strong { font-size:.6rem; letter-spacing:.02em; padding:5px 2px; } .rows button { grid-template-columns:1fr 16px; } .rows button span { display:none; } .top { align-items:center; flex-wrap:wrap; row-gap:10px; } .pdf { padding:0 11px; } .pdf span { display:none; } .top nav a { width:38px; height:38px; } .lang button { padding:6px 8px; } .tm { min-height:300px; } }
 @media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; } }
