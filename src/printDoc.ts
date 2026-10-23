@@ -33,7 +33,7 @@ export function buildPrintDoc(c: Site): string {
 
   const profile = `
     <div class="p-block pdf-profile">
-      <div class="pdf-photo"><img src="${esc(p.photo)}" alt="" /></div>
+      <div class="pdf-photo" style="background-image:url('${esc(p.photo)}')" role="img" aria-label="${esc(p.name)}"></div>
       <div class="pdf-facts">
         <dl>
           <div><dt>${esc(t.factInterest)}</dt><dd>${esc(p.interest)}</dd></div>
