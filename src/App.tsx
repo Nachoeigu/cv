@@ -5,6 +5,7 @@ import { Area, AreaChart, CartesianGrid, PolarAngleAxis, PolarGrid, PolarRadiusA
 import { Award, Briefcase, ChevronRight, Download, ExternalLink, FolderGit2, GraduationCap, Github, Linkedin, Mail,
   Radar as RadarIcon, TrendingUp, User, Wrench, X, type LucideIcon } from "lucide-react";
 import { content, type Lang } from "./data";
+import { buildPrintDoc } from "./printDoc";
 
 type Key = "exp" | "proj" | "edu" | "cert";
 const groupColors = ["#f7c948", "#eba33c", "#fbeabb", "#c9ccd6"];
@@ -136,29 +137,66 @@ export default function App() {
   const seeAll = (k: Key, n: number) => <button className="more" onClick={() => setModal(k)}>{n > 0 ? t.more(n) : t.viewAll}<ChevronRight size={14} /></button>;
   const activeItems = toolGroups.find((g) => g.title === group)?.items;
 
-  // The PDF is a snapshot of this exact layout: one page sized to the content, so nothing re-flows or breaks.
+  // Builds a paginated A4 document with the full content (everything the modals hide on screen),
+  // laid out with the same visual language as the site.
   const downloadPdf = async () => {
     if (busy) return;
     setBusy(true);
-    document.body.classList.add("capturing"); // hides the header buttons so they don't end up in the PDF
+    const host = document.createElement("div");
+    host.className = "pdf-doc";
     try {
       const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
-      const el = document.querySelector<HTMLElement>(".page");
-      if (!el) return;
-      // Always render at desktop width, so a phone gets the same document as the desktop.
-      const w = Math.max(el.offsetWidth, 1240);
-      const scale = Math.min(3, Math.max(2, window.devicePixelRatio || 1));
-      const canvas = await html2canvas(el, {
-        scale, backgroundColor: "#131417", logging: false, useCORS: true,
-        width: w, windowWidth: w, windowHeight: Math.max(2400, el.offsetHeight),
-      });
-      const pt = 0.75; // CSS px → PDF pt
-      const pw = canvas.width / scale, ph = canvas.height / scale;
-      const pdf = new jsPDF({ unit: "pt", format: [pw * pt, ph * pt], orientation: pw > ph ? "landscape" : "portrait", compress: true });
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, pw * pt, ph * pt);
+      host.innerHTML = `<div class="pdf-measure">${buildPrintDoc(c)}</div>`;
+      document.body.appendChild(host);
+      await document.fonts.ready;
+      await Promise.all(Array.from(host.querySelectorAll("img"), (img) => img.decode().catch(() => {})));
+
+      const PAGE_W = 794, PAGE_H = 1123, GAP = 10;
+      const usable = PAGE_H - 42 - 26 - 4; // top padding + footer + slack
+      const sheets: HTMLElement[] = [];
+      const newSheet = () => {
+        const s = document.createElement("div");
+        s.className = "pdf-sheet";
+        s.innerHTML = `<div class="pdf-body"></div><div class="pdf-foot"><span>${profile.name} · ${profile.role}</span><span></span></div>`;
+        host.appendChild(s);
+        sheets.push(s);
+        return s;
+      };
+      let sheet = newSheet();
+      let body = sheet.querySelector(".pdf-body") as HTMLElement;
+      // Blocks are appended where they will live, then measured: no drift between measuring and rendering.
+      const blocks = Array.from(host.querySelectorAll<HTMLElement>(".p-block"));
+      for (let i = 0; i < blocks.length; i++) {
+        const block = blocks[i];
+        // A section title travels with the block that follows it, so it never hangs alone at the bottom.
+        const pair = block.classList.contains("pdf-sec") && blocks[i + 1] ? [block, blocks[i + 1]] : [block];
+        pair.forEach((b) => body.appendChild(b));
+        const usable = body.clientHeight;
+        if (body.scrollHeight > usable && body.children.length > pair.length) {
+          sheet = newSheet();
+          body = sheet.querySelector(".pdf-body") as HTMLElement;
+          pair.forEach((b) => body.appendChild(b));
+        }
+        if (pair.length === 2) i++;
+      }
+      sheets.forEach((s, i) => { s.querySelectorAll(".pdf-foot span")[1].textContent = `${i + 1} / ${sheets.length}`; });
+
+      const pdf = new jsPDF({ unit: "pt", format: "a4", compress: true });
+      const images: string[] = [];
+      for (let i = 0; i < sheets.length; i++) {
+        const canvas = await html2canvas(sheets[i], {
+          scale: 2, backgroundColor: "#131417", logging: false, useCORS: true,
+          width: PAGE_W, height: PAGE_H, windowWidth: PAGE_W, windowHeight: PAGE_H,
+        });
+        const img = canvas.toDataURL("image/jpeg", 0.95);
+        images.push(img);
+        if (i > 0) pdf.addPage();
+        pdf.addImage(img, "JPEG", 0, 0, 595.28, 841.89);
+      }
+      if (import.meta.env.DEV) (window as any).__cvPdf = images;
       pdf.save(`Ignacio-Eiguren-CV-${lang.toUpperCase()}.pdf`);
     } finally {
-      document.body.classList.remove("capturing");
+      host.remove();
       setBusy(false);
     }
   };
@@ -171,7 +209,7 @@ export default function App() {
           <p className="sub"><span className="dot" />{profile.available}</p>
         </div>
         <div className="tools">
-          <button className="pdf no-capture" onClick={downloadPdf} disabled={busy} aria-label={t.ariaDownload} title={t.ariaDownload}>
+          <button className="pdf" onClick={downloadPdf} disabled={busy} aria-label={t.ariaDownload} title={t.ariaDownload}>
             <Download size={16} aria-hidden /><span>{busy ? t.pdfBusy : t.pdf}</span>
           </button>
           <div className="lang" role="group" aria-label={t.ariaLang}>
